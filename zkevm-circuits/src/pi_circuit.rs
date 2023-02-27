@@ -131,14 +131,14 @@ impl PublicData {
             )
             .collect::<Vec<u8>>();
 
-        log::debug!("[PI] prev_state_root: {}", hex::encode(self.prev_state_root.to_be_bytes()));
-        log::debug!("[PI] end_state_root: {}", hex::encode(end_state_root.to_be_bytes()));
+        log::debug!("[PI] prev_state_root: {}", hex::encode(self.prev_state_root.to_fixed_bytes()));
+        log::debug!("[PI] end_state_root: {}", hex::encode(end_state_root.to_fixed_bytes()));
         for (i, tx) in self.transactions.iter().enumerate() {
-            log::debug!("[PI] rlp(tx_{}): {}", i, hex::encode(tx.rlp_signed));
+            log::debug!("[PI] rlp(tx_{}): {}", i, hex::encode(&tx.rlp_signed));
             log::debug!("[PI] hash(rlp(tx_{})): {}", i, hex::encode(tx.hash.to_fixed_bytes()));
         }
 
-        for _ in 0..(max_txs - self.transactions.len()) {
+        for i in 0..(max_txs - self.transactions.len()) {
             log::debug!("[PI] padding tx_{} hash: {}", i + self.transactions.len(), hex::encode(dummy_tx_hash));
         }
 
@@ -153,10 +153,10 @@ impl PublicData {
 
     fn get_pi(&self, max_txs: usize) -> H256 {
         let rpi_bytes = self.raw_public_input_bytes(max_txs);
-        let rpi_keccak = keccak256(rpi_bytes);
+        let rpi_keccak = keccak256(&rpi_bytes);
         log::debug!("[PI] raw public inputs: {}", hex::encode(rpi_bytes));
-        log::debug!("[PI] pi_high: {}", hex::encode(rpi_keccak[..16]));
-        log::debug!("[PI] pi_low: {}", hex::encode(rpi_keccak[16..]));
+        log::debug!("[PI] pi_high: {}", hex::encode(&rpi_keccak[..16]));
+        log::debug!("[PI] pi_low: {}", hex::encode(&rpi_keccak[16..]));
 
         H256(rpi_keccak)
     }
